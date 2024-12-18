@@ -1,21 +1,22 @@
 body {
-    font-family: 'Georgia', serif; /* Changed to serif font */
+    font-family: 'Georgia', serif;
     line-height: 1.6;
     margin: 0;
     padding: 0;
     background-color: #f4f4f4;
+    color: #333;
 }
 
 .container {
     width: 80%;
-    max-width: 600px; /* Limit the max width for better centering */
+    max-width: 800px;
     margin: auto;
     overflow: hidden;
     padding: 20px;
 }
 
-h1 {
-    color: #6a0dad; /* Purple color */
+h1, h2 {
+    color: #6a0dad;
     text-align: center;
 }
 
@@ -24,6 +25,7 @@ form {
     padding: 20px;
     border-radius: 5px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
 }
 
 .input-group {
@@ -37,8 +39,8 @@ label {
 }
 
 input[type="text"] {
-    width: calc(100% - 16px); /* Adjust width to be slightly shorter */
-    max-width: 300px; /* Limit the maximum width of the input fields */
+    width: calc(100% - 16px);
+    max-width: 300px;
     padding: 8px;
     border: 1px solid #ddd;
     border-radius: 4px;
@@ -48,7 +50,7 @@ button {
     display: block;
     width: 100%;
     padding: 10px;
-    background-color: #ff7f50; /* Orange color */
+    background-color: #ff7f50;
     color: #fff;
     border: none;
     border-radius: 4px;
@@ -57,5 +59,35 @@ button {
 }
 
 button:hover {
-    background-color: #ff4500; /* Darker orange on hover */
+    background-color: #ff4500;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+}
+
+th {
+    background-color: #6a0dad;
+    color: white;
+}
+
+#delay-chart {
+    width: 100%;
+    max-width: 600px;
+    margin: auto;
+}
+
+.chart-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 20px auto;
+    height: 400px;
 }

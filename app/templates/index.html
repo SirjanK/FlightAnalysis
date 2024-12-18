@@ -5,11 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flight Delay Predictor</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="container">
         <h1>Flight Delay Predictor</h1>
-        <form>
+        <form id="prediction-form">
             <div class="input-group">
                 <label for="origin">Origin Airport</label>
                 <input type="text" id="origin" name="origin" required>
@@ -23,11 +24,36 @@
                 <input type="text" id="airline" name="airline" required>
             </div>
             <div class="input-group">
-                <label for="departure-time">Departure Time</label>
-                <input type="text" id="departure-time" name="departure-time" required>
+                <label for="departure-time">Departure Time (24-hour format)</label>
+                <input 
+                    type="text" 
+                    id="departure-time" 
+                    name="departure-time" 
+                    placeholder="HH:MM" 
+                    pattern="([01]?[0-9]|2[0-3]):[0-5][0-9]" 
+                >
             </div>
             <button type="button" id="predict-button">Predict Delays</button>
         </form>
+        <div id="results" style="display: none;">
+            <h2>Delay Probability</h2>
+            <table id="delay-table">
+                <thead>
+                    <tr>
+                        <th>>= 30 mins</th>
+                        <th>>= 1hr</th>
+                        <th>>= 2hrs</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr id="delay-percentages"></tr>
+                </tbody>
+            </table>
+            <div class="chart-container">
+                <canvas id="delay-chart"></canvas>
+            </div>
+        </div>
     </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
