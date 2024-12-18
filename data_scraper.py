@@ -5,6 +5,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
 from typing import Optional
+import argparse
 
 
 URL = "https://www.transtats.bts.gov/DL_SelectFields.aspx?gnoyr_VQ=FGK&QO_fu146_anzr=b0-gvzr"
@@ -28,9 +29,16 @@ OPTIONS = [
     "DIVERTED",
 ]
 
-# YEAR to MONTH config - this allows us to be flexible for which months to download for year.
+# Full year to month config for all available data
+ALL_MONTHS = list(range(1, 13))
+LATEST_YEAR_MONTHS = list(range(1, 9))  # only data up to Aug 2024
+FULL_YEAR_TO_MONTH_CONFIG = {
+    y: ALL_MONTHS for y in range(2018, 2025)
+}
+
+# Custom YEAR to MONTH config - this allows us to be flexible for which months to download for year.
 # Helps when we have to partially download data for a year.
-YEAR_TO_MONTH_CONFIG = {
+CUSTOM_YEAR_TO_MONTH_CONFIG = {
     # 2018: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
     2018: [9, 10, 11, 12],
     2019: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
@@ -38,7 +46,18 @@ YEAR_TO_MONTH_CONFIG = {
     2021: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
     2022: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
     2023: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-    2024: [1, 2, 3, 4, 5, 6, 7, 8],  # only data up to Aug 2024
+    2024: [1, 2, 3, 4, 5, 6, 7, 8],
+}
+
+# Test year to month config to test the download functionality
+TEST_YEAR_TO_MONTH_CONFIG = {
+    2022: [1, 2],
+}
+
+CONFIGS = {
+    "full": FULL_YEAR_TO_MONTH_CONFIG,
+    "custom": CUSTOM_YEAR_TO_MONTH_CONFIG,
+    "test": TEST_YEAR_TO_MONTH_CONFIG,
 }
 
 
@@ -75,16 +94,18 @@ def replace_file(old_file: str, download_dir: str, year: int, month: int) -> Non
     :param year: Year of the file.
     :param month: Month of the file.
     """
+
     old_fpath = os.path.join(download_dir, old_file)
     new_fpath = os.path.join(download_dir, f"T_ONTIME_MARKETING_{year}_{month}.csv")
-    if os.path.exists(old_file):
-        os.remove(old_file)
+    os.rename(old_fpath, new_fpath)
 
 
-def scrape_data() -> None:
+def scrape_data(year_to_month_config: dict) -> None:
     """
     Scrape data from https://www.transtats.bts.gov/DL_SelectFields.aspx?gnoyr_VQ=FGK&QO_fu146_anzr=b0-gvzr by downloading
     flight delay data for all years and months.
+
+    :param year_to_month_config (dict): Year to month configuration.
     """
     # Set up the WebDriver for Safari
     driver = webdriver.Safari()
@@ -106,13 +127,15 @@ def scrape_data() -> None:
             if not checkbox.is_selected():
                 checkbox.click()
 
-        for year in YEAR_TO_MONTH_CONFIG:
-            for month in YEAR_TO_MONTH_CONFIG[year]:
+        for year in year_to_month_config:
+            for month in year_to_month_config[year]:
                 year_dropdown = wait.until(EC.element_to_be_clickable((By.ID, "cboYear")))
                 year_dropdown.send_keys(str(year))
 
                 period_dropdown = wait.until(EC.element_to_be_clickable((By.ID, "cboPeriod")))
                 period_dropdown.send_keys(str(month))
+
+                time.sleep(2)  # wait a bit before triggering Download
  
                 # Click on the Download button
                 download_button = wait.until(EC.element_to_be_clickable((By.ID, "btnDownload")))
@@ -128,10 +151,16 @@ def scrape_data() -> None:
 
                 # bit of buffer time to not quickly re-click Download
                 time.sleep(2)
+    except Exception as e:
+        print(f"An error occured while processing year {year} and month {month}: {e}")
     finally:
         # Close the driver
         driver.quit()
 
 
 if __name__ == '__main__':
-    scrape_data()
+    # Parse command line arguments - get year to month setting
+    parser = argparse.ArgumentParser(description="Scrape flight delay data from BTS website.")
+    parser.add_argument("--config", choices=CONFIGS.keys(), help="Config setting for year to month mapping", default="test")
+    args = parser.parse_args()
+    scrape_data(CONFIGS[args.config])

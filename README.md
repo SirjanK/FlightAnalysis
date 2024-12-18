@@ -7,8 +7,13 @@ Data from: https://www.transtats.bts.gov/DL_SelectFields.aspx?gnoyr_VQ=FGK&QO_fu
 See `FlightDelayAnalysis.ipynb` for some example analysis. Unzip `notebook_data.zip` to use the data referenced in the notebook.
 
 ## Data Scraper
-To use the full dataset, you can scrape data via `python data_scraper.py` - update the `YEARS` and `MONTHS` there to download what you need
+To use the full dataset, you can scrape data via `data_scraper.py` - update the `YEARS` and `MONTHS` in the custom there to download what you need
 and see details and caveats in the comments in that file.
+Invoke with:
+```
+python data_scraper.py --config [full, custom, test]
+```
+Recommend trying `test` first to make sure it works before going for `full` or `custom`.
 
 Once finished, you can post process the downloaded data using `data_cacher.py`. First,
 1. Move your raw data from `Downloads` folder into some desired directory
