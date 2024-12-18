@@ -1,9 +1,33 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Flask App</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flight Delay Predictor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <h1>Welcome to your Flask App</h1>
+    <div class="container">
+        <h1>Flight Delay Predictor</h1>
+        <form>
+            <div class="input-group">
+                <label for="origin">Origin Airport</label>
+                <input type="text" id="origin" name="origin" required>
+            </div>
+            <div class="input-group">
+                <label for="destination">Departure Airport</label>
+                <input type="text" id="destination" name="destination" required>
+            </div>
+            <div class="input-group">
+                <label for="airline">Airline</label>
+                <input type="text" id="airline" name="airline" required>
+            </div>
+            <div class="input-group">
+                <label for="departure-time">Departure Time</label>
+                <input type="text" id="departure-time" name="departure-time" required>
+            </div>
+            <button type="button" id="predict-button">Predict Delays</button>
+        </form>
+    </div>
 </body>
 </html>
