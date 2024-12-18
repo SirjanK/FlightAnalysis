@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     data: dataPoints, // Use all y-values
                     borderColor: '#6a0dad',
                     backgroundColor: 'rgba(106, 13, 173, 0.1)',
-                    tension: 0.4, // Smooth line
+                    tension: 0.8, // Smooth line
                     pointRadius: 0 // Hide markers
                 }]
             },
@@ -76,7 +76,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         ticks: {
                             callback: function(value, index, ticks) {
                                 if (index % 300 == 0) {
-                                    console.log("HIT!!! " + index.toString());
                                     totalMinutes = index / 10.0;
                                     var hours = Math.floor(totalMinutes / 60);
                                     var totalMinutes = Math.round(totalMinutes % 60);
