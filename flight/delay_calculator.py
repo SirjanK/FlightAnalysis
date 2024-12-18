@@ -23,7 +23,7 @@ class DelayCalculator:
         """
 
         # TODO implement; fake plot for now
-        durations = np.linspace(start=0, stop=180, num=1800)
+        durations = np.linspace(start=0, stop=181, num=1801)
         probs = 0.4 * np.exp(-0.01155245 * durations)
 
-        return probs
+        return np.column_stack((durations, probs))
