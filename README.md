@@ -2,7 +2,7 @@
 We play around with some flight delay data to analyze how it varies based on origin, destination, airline, and time of day.
 
 ## Analysis Notebook
-See `FlightDelayAnalysis.ipynb` for some example analysis.
+See `FlightDelayAnalysis.ipynb` for some example analysis. Unzip `data.zip` to use the data referenced in the notebook.
 
 ## Web App
 Run using `python3 app/run.py`. 
