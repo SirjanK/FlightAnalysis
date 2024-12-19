@@ -3,12 +3,9 @@ We play around with some flight delay data to analyze how it varies based on ori
 
 Data from: https://www.transtats.bts.gov/DL_SelectFields.aspx?gnoyr_VQ=FGK&QO_fu146_anzr=b0-gvzr
 
-## Analysis Notebook
-See `FlightDelayAnalysis.ipynb` for some example analysis. Unzip `notebook_data.zip` to use the data referenced in the notebook in the first section.
-
-For the second section for full data analysis, you'll need scraped data - reference `Data Scraper` section.
-
 ## Data Generation
+Unless you need to regenerate the data, skip this section. You can just use `cached_data.zip` directly.
+
 To use the full dataset, you can scrape data via `data_scraper.py` - update the `YEARS` and `MONTHS` in the custom there to download what you need
 and see details and caveats in the comments in that file.
 Invoke with:
@@ -37,4 +34,9 @@ TODO: attach example image
 We fit exponential distributions to model the delays conditioned on factors since we want this to be a lightweight web app. To fit these,
 run:
 `python flight/fit_models.py --input_data_path [INPUT_DATA_PATH] --output_assets_dir app/assets/`
-Where `INPUT_DATA_PATH` is the path of the cached data.
+Where `INPUT_DATA_PATH` is the path of the cached data (from `cached_data.zip` or a regenerated dataset).
+
+## Analysis Notebook
+See `FlightDelayAnalysis.ipynb` for some example analysis. Unzip `notebook_data.zip` to use the data referenced in the notebook in the first section.
+
+For the second section for full data analysis, you'll need scraped data - reference `Data Generation` section or use `cached_data.zip`.
