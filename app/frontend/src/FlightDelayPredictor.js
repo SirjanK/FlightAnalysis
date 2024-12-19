@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Container, Typography } from '@mui/material';
 import InputCards from './InputCards'; // Import the InputCards component
+import Results from './Results'; // Import the Results component
 
 const FlightDelayPredictor = () => {
     // Mock data for airports and airlines
@@ -13,6 +14,7 @@ const FlightDelayPredictor = () => {
                 Flight Delay Predictor
             </Typography>
             <InputCards airports={airports} airlinesList={airlinesList} />
+            <Results/>
         </Container>
     );
 };
