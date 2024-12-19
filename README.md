@@ -8,7 +8,7 @@ See `FlightDelayAnalysis.ipynb` for some example analysis. Unzip `notebook_data.
 
 For the second section for full data analysis, you'll need scraped data - reference `Data Scraper` section.
 
-## Data Scraper
+## Data Generation
 To use the full dataset, you can scrape data via `data_scraper.py` - update the `YEARS` and `MONTHS` in the custom there to download what you need
 and see details and caveats in the comments in that file.
 Invoke with:
@@ -33,7 +33,7 @@ The user can select which configurations for conditioning they want to see in th
 
 TODO: attach example image
 
-### Generating Assets
+### Fitting Models and Generating Assets
 We fit exponential distributions to model the delays conditioned on factors since we want this to be a lightweight web app. To fit these,
 run:
 `python flight/fit_models.py --input_data_path [INPUT_DATA_PATH] --output_assets_dir app/assets/`
