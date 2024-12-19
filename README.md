@@ -19,6 +19,12 @@ Recommend trying `test` first to make sure it works before going for `full` or `
 
 Move your raw data from `Downloads` folder into some desired data directory.
 
+Then, run
+```
+python data_cacher.py --data_dir INSERT_DATA_DIR --output_file_path INSERT_OUTPUT_FILE_PATH
+```
+This will read in the raw CSV files from the scraper, prune the data, and store resulting data in another file.
+
 ## Web App
 Run using `python app/run.py`. 
 
@@ -26,3 +32,9 @@ It allows optional user input for fields and computes the delays for `>= 30mins`
 The user can select which configurations for conditioning they want to see in the plot.
 
 TODO: attach example image
+
+### Generating Assets
+We fit exponential distributions to model the delays conditioned on factors since we want this to be a lightweight web app. To fit these,
+run:
+`python flight/fit_models.py --input_data_path [INPUT_DATA_PATH] --output_assets_dir app/assets/`
+Where `INPUT_DATA_PATH` is the path of the cached data.
