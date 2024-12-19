@@ -70,7 +70,7 @@ def prune_data(df: pd.DataFrame) -> pd.DataFrame:
     # for each airline, origin airport, and destination airport, get the count of flights - filter from filtered_df to remove those that have
     # < min flight threshold
     for conditional_col in ['OP_CARRIER_AIRLINE_ID', 'ORIGIN_AIRPORT_ID', 'DEST_AIRPORT_ID']:
-        positive_delay_df = positive_delay_df[positive_delay_df.groupby(conditional_col)[conditional_col].transform('size') > MIN_FLIGHT_THRESHOLD]
+        positive_delay_df = positive_delay_df[positive_delay_df.groupby(conditional_col)[conditional_col].transform('size') >= MIN_FLIGHT_THRESHOLD]
         filtered_df = filtered_df[filtered_df[conditional_col].isin(positive_delay_df[conditional_col].unique())]
     
     return filtered_df
@@ -91,7 +91,6 @@ def cache_data(df: pd.DataFrame, output_file_path: str) -> None:
 
 
 if __name__ == '__main__':
-    # parse arguments - data_dir, output_file_path
     parser = argparse.ArgumentParser(description='Prunes and caches data from raw flight CSVs to a single output file')
     parser.add_argument('--data_dir', type=str, help='Directory containing data files')
     parser.add_argument('--output_file_path', type=str, help='Path to output file')
