@@ -12,11 +12,25 @@ document.addEventListener('DOMContentLoaded', function() {
             method: 'POST',
             body: formData
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(errorData => {
+                    throw new Error(errorData.error);
+                });
+            }
+            return response.json();
+        })
         .then(data => {
             updateResults(data.delay_data);
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => {
+            console.error('Error:', error);
+            showErrorDialog(error.message || "We couldn't process your request. Please try again.");
+        });
+    }
+
+    function showErrorDialog(message) {
+        alert(message);
     }
 
     function updateResults(delayData) {
@@ -96,18 +110,69 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
      
-    const departureTimeInput = document.getElementById('departure-time');
-
-    departureTimeInput.addEventListener('change', function() {
-        // Validate time format HH:MM
-        const time = this.value;
-        const regex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
-
-        if (time && !regex.test(time)) {
-            alert("Please enter a valid time in HH:MM format.");
-            this.value = ""; // Clear invalid input
-        }
+    predictButton.addEventListener('click', function() {
+        document.getElementById('prediction-form').requestSubmit();
     });
 
-    predictButton.addEventListener('click', predictDelays);
+    // create and attach typeahead functionality
+    function setupTypeahead(inputId, dataList) {
+        const input = document.getElementById(inputId);
+        const datalist = document.createElement('datalist');
+        datalist.id = inputId + '-list';
+        input.setAttribute('list', datalist.id);
+
+        dataList.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item;
+            datalist.appendChild(option);
+        });
+
+        input.parentNode.insertBefore(datalist, input.nextSibling);
+
+        input.addEventListener('input', function() {
+            const value = this.value.toLowerCase();
+            const options = datalist.querySelectorAll('option');
+            options.forEach(option => {
+                if (option.value.toLowerCase().includes(value)) {
+                    option.style.display = '';
+                } else {
+                    option.style.display = 'none';
+                }
+            });
+        });
+    }
+
+    // validate input
+    function validateInput(input, validOptions) {
+        if (input.value === "" || validOptions.includes(input.value)) {
+            return true;
+        }
+        alert(`Please select a valid option for ${input.name} or leave it empty.`);
+        input.value = '';
+        return false;
+    }
+
+    // Fetch options from server
+    fetch('/get_options')
+        .then(response => response.json())
+        .then(data => {
+            setupTypeahead('origin', data.airports);
+            setupTypeahead('destination', data.airports);
+            setupTypeahead('airline', data.airlines);
+
+            // Add validation to the form submission
+            document.getElementById('prediction-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const origin = document.getElementById('origin');
+                const destination = document.getElementById('destination');
+                const airline = document.getElementById('airline');
+            
+                if (validateInput(origin, data.airports) &&
+                    validateInput(destination, data.airports) &&
+                    validateInput(airline, data.airlines)) {
+                    predictDelays();
+                }
+            });
+        })
+        .catch(error => console.error('Error:', error));
 });

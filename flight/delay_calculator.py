@@ -14,7 +14,10 @@ class DelayCalculator:
         Initialize the calculator with parameters data frame
         """
 
-        self._params_df = params_df.index(CONDITIONAL_COLS)
+        # Cast columns to int with NaNs being ok
+        for col in ['OP_CARRIER_AIRLINE_ID', 'ORIGIN_AIRPORT_ID', 'DEST_AIRPORT_ID']:
+            params_df[col] = params_df[col].astype('Int64')
+        self._params_df = params_df.set_index(CONDITIONAL_COLS)
 
     def predict_delays(self, orig_airport_id: Optional[int], dest_airport_id: Optional[int], airline_id: Optional[int], time_bucket: Optional[str]) -> Optional[np.ndarray]:
         """
@@ -29,11 +32,13 @@ class DelayCalculator:
                  if the query is not supported, return None.
         """
 
-        # get parameters
-        fitted_p, fitted_lambda = self._params_df.loc[(orig_airport_id, dest_airport_id, airline_id, time_bucket), ['p', 'lambda']].get([0, 1], [None, None])
+        print(f"Predicting delays for origin: {orig_airport_id}, destination: {dest_airport_id}, airline: {airline_id}, time_bucket: {time_bucket}")
 
-        if fitted_p is None or fitted_lambda is None:
+        index = (airline_id, orig_airport_id, dest_airport_id, time_bucket)
+        if index not in self._params_df.index:
             return None
+        fitted_p = self._params_df.at[index, 'p']
+        fitted_lambda = self._params_df.at[index, 'lambda']
 
         # 1 - CDF for delta > 0
         durations = np.linspace(start=0, stop=181, num=1801)

@@ -3,7 +3,8 @@ import sys
 import os
 import pandas as pd
 # Get the parent directory
-parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
 # Add the parent directory to sys.path
 sys.path.append(parent_dir)
 from flight.delay_calculator import DelayCalculator
@@ -11,7 +12,7 @@ from flight.delay_calculator import DelayCalculator
 app = Flask(__name__)
 
 
-ASSETS_DIR = "assets/"
+ASSETS_DIR = os.path.join(current_dir, "assets")
 
 
 def init_delay_calculator() -> DelayCalculator:
@@ -20,7 +21,8 @@ def init_delay_calculator() -> DelayCalculator:
     """
 
     print("Initializing delay calculator...")
-    params_df = pd.read_csv(f"{ASSETS_DIR}/model_params.csv")
+    assets_path = os.path.join(ASSETS_DIR, "model_params.csv")
+    params_df = pd.read_csv(assets_path)
     return DelayCalculator(params_df=params_df)
 
 
@@ -37,33 +39,42 @@ def index():
     return render_template('index.html')
 
 
+@app.route('/get_options')
+def get_options():
+    return jsonify({
+        'airports': list(airport_lookup.keys()),
+        'airlines': list(airline_lookup.keys()),
+    })
+
+
 @app.route('/predict', methods=['POST'])
 def predict():
     # Get input data from the request
     origin = request.form.get('origin')
     destination = request.form.get('destination')
     airline = request.form.get('airline')
-    departure_time = request.form.get('departure_time')
+    departure_time = request.form.get('departure-time')
 
-    if origin is not None and origin not in airport_lookup_df:
-        abort(400, description="Unsupported input: origin")
-    if destination is not None and destination not in airport_lookup_df:
-        abort(400, description="Unsupported input: destination")
-    if airline is not None and airline not in airline_lookup_df:
-        abort(400, description="Unsupported input: airline")
-    if departure_time is not None and not departure_time in ['morning', 'afternoon', 'evening', 'night']:
-        abort(400, description="Unsupported input: departure_time")
+    if origin != "" and origin not in airport_lookup:
+        abort(400, description=f"Unsupported input: origin airport: {origin}")
+    if destination != "" and destination not in airport_lookup:
+        abort(400, description=f"Unsupported input: destination airport: {destination}")
+    if airline != "" and airline not in airline_lookup:
+        abort(400, description=f"Unsupported input: airline: {airline}")
+    if departure_time != "" and not departure_time in ['morning', 'afternoon', 'evening', 'night']:
+        abort(400, description=f"Unsupported input: departure_time: {departure_time}")
     
+    print(f"Predicting delays for origin: {origin}, destination: {destination}, airline: {airline}, departure_time: {departure_time}")
     # Predict the delays
     delays = delay_calculator.predict_delays(
-        orig_airport_id=airport_lookup[origin],
-        dest_airport_id=airport_lookup[destination],
-        airline_id=airline_lookup[airline],
-        departure_time=departure_time,
+        orig_airport_id=airport_lookup.get(origin),
+        dest_airport_id=airport_lookup.get(destination),
+        airline_id=airline_lookup.get(airline),
+        time_bucket=departure_time if departure_time != "" else None,
     )
 
     if delays is None:
-        abort(422, description="Delay calculator cannot support this query")
+        abort(422, description="We cannot support this query given low data support")
     
     # Convert numpy array to list for JSON serialization
     delays_list = delays.tolist()
