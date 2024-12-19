@@ -15,10 +15,7 @@ python data_scraper.py --config [full, custom, test]
 ```
 Recommend trying `test` first to make sure it works before going for `full` or `custom`.
 
-Once finished, you can post process the downloaded data using `data_cacher.py`. First,
-1. Move your raw data from `Downloads` folder into some desired directory
-2. Run `data_cacher.py` providing the path to this directory
-`data_cacher` will store the output cached data under `full_data.csv`, which we've added to `.gitignore` due to it being a large file.
+Move your raw data from `Downloads` folder into some desired data directory.
 
 ## Web App
 Run using `python app/run.py`. 
