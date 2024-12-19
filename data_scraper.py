@@ -39,14 +39,7 @@ FULL_YEAR_TO_MONTH_CONFIG = {
 # Custom YEAR to MONTH config - this allows us to be flexible for which months to download for year.
 # Helps when we have to partially download data for a year.
 CUSTOM_YEAR_TO_MONTH_CONFIG = {
-    # 2018: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-    2018: [9, 10, 11, 12],
-    2019: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-    2020: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-    2021: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-    2022: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-    2023: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-    2024: [1, 2, 3, 4, 5, 6, 7, 8],
+    2021: [6, 7, 8, 9, 10, 11, 12],
 }
 
 # Test year to month config to test the download functionality
@@ -114,6 +107,7 @@ def scrape_data(year_to_month_config: dict) -> None:
         # Applicable for all years and months
         # Navigate to the specified URL
         driver.get(URL)
+
         # Wait for the page to load and elements to be present
         wait = WebDriverWait(driver, 10)
 
@@ -135,11 +129,13 @@ def scrape_data(year_to_month_config: dict) -> None:
                 period_dropdown = wait.until(EC.element_to_be_clickable((By.ID, "cboPeriod")))
                 period_dropdown.send_keys(str(month))
 
-                time.sleep(2)  # wait a bit before triggering Download
- 
+                print("waiting to click download...")
+                time.sleep(5)  # wait a bit before triggering Download
                 # Click on the Download button
                 download_button = wait.until(EC.element_to_be_clickable((By.ID, "btnDownload")))
+                time.sleep(3)
                 download_button.click()
+                print("clicked download")
 
                 # Wait for the download to complete
                 tmp_file = wait_for_download(DOWNLOAD_DIR)
@@ -149,10 +145,10 @@ def scrape_data(year_to_month_config: dict) -> None:
                     replace_file(tmp_file, DOWNLOAD_DIR, year, month)
                     print(f"DOWNLOADED FILE FOR YEAR {year} AND MONTH {month}")
 
-                # bit of buffer time to not quickly re-click Download
-                time.sleep(2)
+                # bit of buffer time to not quickly move onto the next
+                time.sleep(1)
     except Exception as e:
-        print(f"An error occured while processing year {year} and month {month}: {e}")
+        print(f"An error occured while processing data: {e}")
     finally:
         # Close the driver
         driver.quit()
