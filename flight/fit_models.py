@@ -26,20 +26,19 @@ def fit_models(df: pd.DataFrame) -> pd.DataFrame:
     """
 
     # group by the conditional columns and gather aggregate count, aggregate count of delay > 0, and sum of delay for those > 0
-    agg_stats_df = df.groupby(CONDITIONAL_COLS).agg({
-        DELAY_COL: [
-            ('count', 'count'),
-            ('delayed_count', lambda x: (x > 0).sum()),
-            ('sum_positive_delay', lambda x: x[x > 0].sum())
-        ]
-    })
+    agg_stats_df = df.groupby(CONDITIONAL_COLS).agg(
+        count=pd.NamedAgg(column=DELAY_COL, aggfunc='count'),
+        delayed_count=pd.NamedAgg(column=DELAY_COL, aggfunc=lambda x: (x > 0).sum()),
+        sum_positive_delay=pd.NamedAgg(column=DELAY_COL, aggfunc=lambda x: x[x > 0].sum()),
+    )
+    agg_stats_df = agg_stats_df.reset_index()
 
     # iterate through subset size and gather data frames
     subset_dfs = []
     for subset_size in range(len(CONDITIONAL_COLS)):
         for subset_cols in itertools.combinations(CONDITIONAL_COLS, subset_size):
             # fit models on subset
-            subset_dfs.append(aggregate_on_subset(agg_stats_df, subset_cols))
+            subset_dfs.append(aggregate_on_subset(agg_stats_df, list(subset_cols)))
     
     # concat all the subset data frames and agg_stats_df
     all_dfs = pd.concat(subset_dfs + [agg_stats_df], axis=0)
@@ -51,8 +50,8 @@ def fit_models(df: pd.DataFrame) -> pd.DataFrame:
     all_dfs['p'] = all_dfs['delayed_count'] / all_dfs['count']
     all_dfs['lambda'] = all_dfs['delayed_count'] / all_dfs['sum_positive_delay']
 
-    # drop the aggregate columns
-    all_dfs.drop(columns=['count', 'delayed_count', 'sum_positive_delay'], inplace=True)
+    # only keep conditional columns and fitted params
+    all_dfs = all_dfs[CONDITIONAL_COLS + ['p', 'lambda']]
 
     return all_dfs
 
@@ -67,18 +66,15 @@ def aggregate_on_subset(agg_stats_df: pd.DataFrame, subset_cols: list) -> pd.Dat
     :return: DataFrame containing aggregated stats for the subset of columns - other columns are set as None
     """
 
-    # group by the subset columns and gather aggregate count, aggregate count of delay > 0, and sum of delay for those > 0
-    subset_agg_stats_df = agg_stats_df.groupby(subset_cols).agg({
-        'count': [
-            ('count', 'sum'),
-        ],
-        'delayed_count': [
-            ('delayed_count', 'sum'),
-        ],
-        'sum_positive_delay': [
-            ('sum_positive_delay', 'sum'),
-        ],
-    })
+    subset_agg_stats_df = agg_stats_df
+    if len(subset_cols) > 0:
+        subset_agg_stats_df = subset_agg_stats_df.groupby(subset_cols)
+    subset_agg_stats_df = subset_agg_stats_df.agg(
+        count=pd.NamedAgg(column='count', aggfunc='sum'),
+        delayed_count=pd.NamedAgg(column='delayed_count', aggfunc='sum'),
+        sum_positive_delay=pd.NamedAgg(column='sum_positive_delay', aggfunc='sum'),
+    )
+    subset_agg_stats_df = subset_agg_stats_df.reset_index()
 
     # fill in None for the other subset columns
     for col in CONDITIONAL_COLS:
@@ -128,6 +124,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     data_df = pd.read_csv(args.input_data_path)
+    print("Loaded data")
     params_df = fit_models(data_df)
     print(f"Size of params df: {len(params_df)}")
     deploy_models(params_df, args.raw_lookup_tables_dir, args.output_assets_dir)
