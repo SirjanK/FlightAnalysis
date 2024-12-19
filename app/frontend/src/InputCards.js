@@ -1,4 +1,3 @@
-// src/InputCards.js
 import React, { useState } from 'react';
 import DelayPredictorCardForm from './DelayPredictorCardForm';
 import { Grid2, Button, Box } from '@mui/material';

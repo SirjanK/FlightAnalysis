@@ -1,4 +1,3 @@
-// src/FlightDelayPredictor.js
 import React, { useState } from 'react';
 import { Container, Typography } from '@mui/material';
 import InputCards from './InputCards'; // Import the InputCards component
