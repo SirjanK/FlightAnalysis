@@ -1,5 +1,7 @@
 import numpy as np
 from typing import Optional
+import pandas as pd
+from flight.fit_models import CONDITIONAL_COLS
 
 
 class DelayCalculator:
@@ -7,10 +9,14 @@ class DelayCalculator:
     The DelayCalculator manages the computation of predicted probability of delays given input configurations.
     """
 
-    def __init__(self) -> None:
-        pass
+    def __init__(self, params_df: pd.DataFrame) -> None:
+        """
+        Initialize the calculator with parameters data frame
+        """
 
-    def predict_delays(self, orig_airport_id: Optional[int], dest_airport_id: Optional[int], airline_id: Optional[int], hour_of_day: Optional[int]) -> np.ndarray:
+        self._params_df = params_df.index(CONDITIONAL_COLS)
+
+    def predict_delays(self, orig_airport_id: Optional[int], dest_airport_id: Optional[int], airline_id: Optional[int], time_bucket: Optional[str]) -> np.ndarray:
         """
         Predict delay probabilities given configurations.
 
@@ -22,8 +28,11 @@ class DelayCalculator:
                  arr[:, 0] is the delay duration, arr[:, 1] is the delay probability (1 - CDF).
         """
 
-        # TODO implement; fake plot for now
+        # get parameters
+        fitted_p, fitted_lambda = self._params_df.loc[(orig_airport_id, dest_airport_id, airline_id, time_bucket), ['p', 'lambda']]
+
+        # 1 - CDF for delta > 0
         durations = np.linspace(start=0, stop=181, num=1801)
-        probs = 0.4 * np.exp(-0.01155245 * durations)
+        probs = fitted_p * np.exp(-fitted_lambda * durations)
 
         return np.column_stack((durations, probs))
