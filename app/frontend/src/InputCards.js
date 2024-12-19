@@ -12,12 +12,23 @@ const InputCards = ({ airports, airlinesList }) => {
         }
     };
 
+    const deleteCard = (indexToDelete) => {
+        // Remove the card at the specified index
+        const updatedCards = cards.filter((_, index) => index !== indexToDelete);
+        setCards(updatedCards); // Update state with remaining cards
+    };
+
     return (
-        <Box display="flex" justifyContent="center" alignItems="center">
+        <Box display="flex" alignItems="center" justifyContent="center">
             <Grid2 container spacing={2} justifyContent="center">
-                {cards.map((index) => (
-                    <Grid2 item xs={12} sm={4} key={index}>
-                        <DelayPredictorCardForm index={index} airports={airports} airlinesList={airlinesList} />
+                {cards.map((_, originalIndex) => (
+                    <Grid2 item xs={12} sm={4} key={originalIndex} style={{ display: 'flex', justifyContent: 'center' }}>
+                        <DelayPredictorCardForm 
+                            index={originalIndex} // Use original index for naming
+                            airports={airports} 
+                            airlinesList={airlinesList} 
+                            onDelete={deleteCard} // Pass delete function
+                        />
                     </Grid2>
                 ))}
             </Grid2>
@@ -26,7 +37,7 @@ const InputCards = ({ airports, airlinesList }) => {
                     variant="contained" 
                     color="secondary" 
                     onClick={addCard} 
-                    style={{ marginLeft: '16px', height: 'fit-content' }} // Add margin and fit height
+                    style={{ marginLeft: '16px', height: 'fit-content' }} // Align button close to last card
                 >
                     +
                 </Button>

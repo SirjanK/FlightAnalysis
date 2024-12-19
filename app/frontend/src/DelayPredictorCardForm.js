@@ -2,8 +2,9 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardActions, IconButton, TextField, Typography, Autocomplete, MenuItem } from '@mui/material';
 import AirplanemodeActiveIcon from '@mui/icons-material/AirplanemodeActive';
+import CloseIcon from '@mui/icons-material/Close'; // Import Close icon
 
-const DelayPredictorCardForm = ({ index, airports, airlinesList }) => {
+const DelayPredictorCardForm = ({ index, airports, airlinesList, onDelete }) => {
     const [origin, setOrigin] = useState('');
     const [destination, setDestination] = useState('');
     const [airline, setAirline] = useState('');
@@ -16,9 +17,19 @@ const DelayPredictorCardForm = ({ index, airports, airlinesList }) => {
     };
 
     return (
-        <Card variant="outlined" className="card" style={{ width: '300px' }}>
+        <Card variant="outlined" className="card" style={{ width: '300px', position: 'relative' }}>
+            {/* Conditionally render the close button only for cards 2 and 3 */}
+            {index > 0 && (
+                <IconButton 
+                    onClick={() => onDelete(index)} 
+                    style={{ position: 'absolute', top: 8, right: 8 }} // Position the close button
+                    size="small"
+                >
+                    <CloseIcon />
+                </IconButton>
+            )}
             <CardContent>
-                <Typography variant="h6" component="div" align="center" sx={{ color: 'secondary.main' }}> {/* Set card header color to orange */}
+                <Typography variant="h6" component="div" align="center" sx={{ color: 'secondary.main' }}>
                     Flight {index + 1}
                 </Typography>
                 <form id={`prediction-form-${index}`} onSubmit={handleSubmit}>
