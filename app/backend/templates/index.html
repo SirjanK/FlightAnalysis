@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flight Delay Predictor</title>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Flight Delay Predictor</h1>
+        <form id="prediction-form">
+            <div class="input-group">
+                <label for="origin">Origin Airport</label>
+                <input type="text" id="origin" name="origin">
+            </div>
+            <div class="input-group">
+                <label for="destination">Destination Airport</label>
+                <input type="text" id="destination" name="destination">
+            </div>
+            <div class="input-group">
+                <label for="airline">Airline</label>
+                <input type="text" id="airline" name="airline">
+            </div>
+            <div class="input-group">
+                <label for="departure-time">Departure Time</label>
+                <select id="departure-time" name="departure-time">
+                    <option value="">Select a time range</option>
+                    <option value="morning">Morning 06:00-11:59</option>
+                    <option value="afternoon">Afternoon 12:00-17:59</option>
+                    <option value="evening">Evening 18:00-23:59</option>
+                    <option value="night">Night 00:00-05:59</option>
+                </select>
+            </div>
+            <button type="button" id="predict-button">Predict Delays</button>
+        </form>
+        <div id="results" style="display: none;">
+            <h2>Delay Probability</h2>
+            <table id="delay-table">
+                <thead>
+                    <tr>
+                        <th>>= 30 mins</th>
+                        <th>>= 1hr</th>
+                        <th>>= 2hrs</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr id="delay-percentages"></tr>
+                </tbody>
+            </table>
+            <div class="chart-container">
+                <canvas id="delay-chart" style="height: 400px; width: 100%;"></canvas>
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
