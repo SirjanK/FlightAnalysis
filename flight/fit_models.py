@@ -33,6 +33,8 @@ def fit_models(df: pd.DataFrame) -> pd.DataFrame:
     )
     agg_stats_df = agg_stats_df.reset_index()
 
+    agg_stats_df.to_csv("agg_stats.csv", index=False)
+
     # iterate through subset size and gather data frames
     subset_dfs = []
     for subset_size in range(len(CONDITIONAL_COLS)):
@@ -44,7 +46,7 @@ def fit_models(df: pd.DataFrame) -> pd.DataFrame:
     all_dfs = pd.concat(subset_dfs + [agg_stats_df], axis=0)
 
     # filter out rows where we don't have enough data support
-    all_dfs = all_dfs[all_dfs['count'] >= DATA_SUPPORT_THRESHOLD]
+    all_dfs = all_dfs[all_dfs['delayed_count'] >= DATA_SUPPORT_THRESHOLD]
 
     # compute fitted params columns
     all_dfs['p'] = all_dfs['delayed_count'] / all_dfs['count']
@@ -74,6 +76,8 @@ def aggregate_on_subset(agg_stats_df: pd.DataFrame, subset_cols: list) -> pd.Dat
         delayed_count=pd.NamedAgg(column='delayed_count', aggfunc='sum'),
         sum_positive_delay=pd.NamedAgg(column='sum_positive_delay', aggfunc='sum'),
     )
+    if len(subset_cols) == 0:
+        subset_agg_stats_df = subset_agg_stats_df.sum().to_frame().T
     subset_agg_stats_df = subset_agg_stats_df.reset_index()
 
     # fill in None for the other subset columns
