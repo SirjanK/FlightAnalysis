@@ -88,11 +88,12 @@ def aggregate_on_subset(agg_stats_df: pd.DataFrame, subset_cols: list) -> pd.Dat
     return subset_agg_stats_df
 
 
-def deploy_models(params_df: pd.DataFrame, deployment_path: str) -> None:
+def deploy_models(params_df: pd.DataFrame, raw_lookup_tables_dir: str, deployment_path: str) -> None:
     """
     Deploy the model params to a file along with pruned lookup tables for airlines and airports.
 
     :params params_df: DataFrame containing fitted params - columns are all the conditional columns with some being None (which means we marginalized across it)
+    :params raw_lookup_tables_dir: Path to the raw lookup tables directory
     :params deployment_path: Path to the assets directory
     """
 
@@ -100,11 +101,28 @@ def deploy_models(params_df: pd.DataFrame, deployment_path: str) -> None:
     params_df.to_csv(f"{deployment_path}/model_params.csv", index=False)
 
     # load the raw lookup tables
+    airline_ids = pd.read_csv(f"{raw_lookup_tables_dir}/L_AIRLINE_ID.csv")
+    airport_ids = pd.read_csv(f"{raw_lookup_tables_dir}/L_AIRPORT_ID.csv")
+
+    # gather unique airline ids from params_df
+    unique_airlines_ids = params_df['OP_CARRIER_AIRLINE_ID'].unique()
+    # prune airline_ids to only contains those in unique_airlines_ids
+    pruned_airline_ids = airline_ids[airline_ids['Code'].isin(unique_airlines_ids)]
+
+    # gather unique airport ids from params_df
+    unique_airport_ids = params_df[['ORIGIN_AIRPORT_ID', 'DEST_AIRPORT_ID']].stack().unique()
+    # prune airport_ids to only contains those in unique_airport_ids
+    pruned_airport_ids = airport_ids[airport_ids['Code'].isin(unique_airport_ids)]
+
+    # save the pruned lookup tables
+    pruned_airline_ids.to_csv(f"{deployment_path}/airline_id_lookup.csv", index=False)
+    pruned_airport_ids.to_csv(f"{deployment_path}/airport_id_lookup.csv", index=False)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Fits models to flight delay data and deploys it to the assets directory')
     parser.add_argument('--input_data_path', type=str, help='Path to input data CSV')
+    parser.add_argument('--raw_lookup_tables_dir', type=str, help='Path to raw lookup tables dir')
     parser.add_argument('--output_assets_dir', type=str, help='Path to output assets dir')
 
     args = parser.parse_args()
@@ -112,4 +130,4 @@ if __name__ == '__main__':
     data_df = pd.read_csv(args.input_data_path)
     params_df = fit_models(data_df)
     print(f"Size of params df: {len(params_df)}")
-    deploy_models(params_df, args.output_assets_dir)
+    deploy_models(params_df, args.raw_lookup_tables_dir, args.output_assets_dir)

@@ -33,7 +33,7 @@ TODO: attach example image
 ### Fitting Models and Generating Assets
 We fit exponential distributions to model the delays conditioned on factors since we want this to be a lightweight web app. To fit these,
 run:
-`python flight/fit_models.py --input_data_path [INPUT_DATA_PATH] --output_assets_dir app/assets/`
+`python flight/fit_models.py --input_data_path [INPUT_DATA_PATH] --raw_lookup_tables_dir stored_data/lookup --output_assets_dir app/assets/`
 Where `INPUT_DATA_PATH` is the path of the cached data (from `cached_data.zip` or a regenerated dataset).
 
 ## Analysis Notebook
