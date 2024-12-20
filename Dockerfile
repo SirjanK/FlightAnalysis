@@ -13,6 +13,10 @@ RUN npm install
 # Copy the rest of the React code
 COPY app/frontend/ ./
 
+# Pass REACT_APP_API_URL as a build argument
+ARG REACT_APP_API_URL
+ENV REACT_APP_API_URL=$REACT_APP_API_URL
+
 # Build the React app
 RUN npm run build
 
