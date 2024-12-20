@@ -1,0 +1,88 @@
+\documentclass{article}
+\usepackage[final]{nips}
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage[english]{babel}
+\usepackage{amsthm}
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{tikz}           % plotting
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.12}
+\usepackage{amsmath,textcomp,amssymb,geometry,graphicx,enumerate}
+\usepackage{algorithm} % Boxes/formatting around algorithms
+\usepackage[noend]{algpseudocode} % Algorithms
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}{Defn}[section]
+
+\newcommand\given[1][]{\:#1\vert\:}
+\definecolor{mediumpurple}{rgb}{0.58, 0.44, 0.86}
+
+\title{Flight Delay Prediction}
+
+\author{%
+  Sirjan Kafle \\
+  \texttt{sxkafle12@gmail.com} \\
+  \texttt{https://flightdelay.us}
+}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+TODO: write intro.
+
+\section{Definitions}
+TODO: write definitions
+
+\section{Modeling Conditional Distributions as an Exponential}
+\subsection{Motivating Examples}
+TODO: show plots - full and conditioned on $D > 0$.
+
+\subsection{Proposed Model}
+$$f_D(\delta|\{C_i\}) = p\lambda e^{-\lambda \delta}$$
+
+\subsection{Maximum Likelihood Estimate of Parameters}
+Learn $p$, $\lambda$.
+\begin{align*}
+    p &= \sum_{i=1}^n 1_{\delta_i > 0} / N \\
+    \lambda &= N / \sum_{i=1}^n \delta_i 1_{\delta_i > 0}
+\end{align*}
+
+\subsection{MLE Plot and Goodness of Fit}
+\subsubsection{Metric}
+\subsubsection{Example Fits}
+\subsubsection{Score vs Data Size}
+\subsubsection{Score vs Conditional Group Profile}
+\subsubsection{Bias Variance Tradeoff in Action}
+
+\subsection{Delay Survival Function}
+$$P(D>\delta | \{C_i\}) = p e^{-\lambda \delta}$$
+
+\section{Algorithms for Low Data Support Conditionals}
+\subsection{Core Problem and Motivating Example}
+\subsection{Definitions of Subset Groupings and Partition}
+\subsection{Assumption and Setup}
+\subsection{Parameter Estimate Derivation Given Partition}
+\subsection{Which Partition is Best?}
+\subsubsection{Main Idea}
+\subsubsection{KL Divergence Derivation}
+\subsubsection{Ranking of Partitions Algorithm}
+
+\section{Final Algorithm}
+\subsection{Model Fitting}
+Defer explanation of the partitions algorithm to earlier.
+\subsection{Inference}
+
+\section{Fun Examples}
+Attach images from the site
+
+\end{document}
