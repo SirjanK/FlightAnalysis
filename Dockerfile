@@ -1,16 +1,21 @@
 # Stage 1: Build the React frontend
 FROM node:18 AS frontend-build
 
+# Set the working directory for the React frontend
 WORKDIR /app/frontend
 
-# Copy package.json and package-lock.json (if available)
+# Copy package.json and package-lock.json
 COPY app/frontend/package*.json ./
 
-# Install dependencies
+# Install frontend dependencies
 RUN npm install
 
-# Copy the rest of the frontend code
+# Copy the rest of the React code
 COPY app/frontend/ ./
+
+# Pass REACT_APP_API_URL as a build argument
+ARG REACT_APP_API_URL
+ENV REACT_APP_API_URL=$REACT_APP_API_URL
 
 # Build the React app
 RUN npm run build
@@ -18,25 +23,31 @@ RUN npm run build
 # Stage 2: Set up the Flask backend
 FROM python:3.11-slim AS backend
 
-WORKDIR /app/backend
+# Set the working directory for the Flask backend
+WORKDIR /app
 
-# Copy requirements.txt
+# Copy requirements.txt and install Python dependencies
 COPY requirements.txt ./
-
-# Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the backend code
-COPY app/backend/ ./
+# Copy backend code, including run.py and backend folder
+COPY app/run.py ./app/run.py
+COPY app/backend ./app/backend
 
-# Copy built frontend files from the previous stage
-COPY --from=frontend-build /app/frontend/build ./static
+# Copy additional Python libraries from flight/
+COPY flight ./flight
 
-# Copy gunicorn config py
-COPY gunicorn_config.py ./
+# Copy assets (e.g., model_params.csv, airline_id_lookup.csv)
+COPY app/backend/assets ./app/backend/assets
 
-# Expose the port that your Flask app runs on
+# Copy built React frontend files from Stage 1 into Flask's static folder
+COPY --from=frontend-build /app/frontend/build ./app/frontend/build
+
+# Copy gunicorn configuration file
+COPY gunicorn_config.py ./gunicorn_config.py
+
+# Expose Flask's default port (8000)
 EXPOSE 8000
 
-# Command to run the Flask app with Gunicorn
+# Command to run Flask with Gunicorn
 CMD ["gunicorn", "-c", "gunicorn_config.py", "app.run:app"]
