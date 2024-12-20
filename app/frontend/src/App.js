@@ -27,6 +27,7 @@ const theme = createTheme({
 function App() {
     return (
         <ThemeProvider theme={theme}>
+            <title>Flight Delay Predictor</title>
             <div className="App">
                 <FlightDelayPredictor />
             </div>
