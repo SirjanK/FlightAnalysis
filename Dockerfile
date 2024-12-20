@@ -30,6 +30,10 @@ WORKDIR /app
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Pass FLASK_ENV
+ARG FLASK_ENV
+ENV FLASK_ENV=$FLASK_ENV
+
 # Copy backend code, including run.py and backend folder
 COPY app/run.py ./app/run.py
 COPY app/backend ./app/backend

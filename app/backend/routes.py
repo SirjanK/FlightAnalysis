@@ -14,6 +14,7 @@ app = Flask(__name__, static_folder=frontend_dir, static_url_path='')
 
 # Determine the environment
 ENVIRONMENT = os.getenv('FLASK_ENV', 'development')  # Default to development if not set
+app.logger.info(f"Running in {ENVIRONMENT} environment")
 
 if ENVIRONMENT == 'production':
     # Allow both HTTP and HTTPS for production
@@ -74,7 +75,7 @@ def predict():
     if departure_time and not departure_time in ['morning', 'afternoon', 'evening', 'night']:
         abort(400, description=f"Unsupported input: departure_time: {departure_time}")
     
-    print(f"Predicting delays for origin: {origin}, destination: {destination}, airline: {airline}, departure_time: {departure_time}")
+    app.logger.debug(f"Predicting delays for origin: {origin}, destination: {destination}, airline: {airline}, departure_time: {departure_time}")
     # Predict the delays
     delays = delay_calculator.predict_delays(
         orig_airport_id=airport_lookup.get(origin),
