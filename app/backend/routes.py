@@ -19,7 +19,6 @@ if ENVIRONMENT == 'production':
     # Allow specific origins for production
     CORS(app, resources={r"/*": {"origins": ["https://flightdelay.us"]}})
 else:
-    print('dev')
     CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "http://127.0.0.1:8000"]}})
 
 ASSETS_DIR = os.path.join(current_dir, "assets")
