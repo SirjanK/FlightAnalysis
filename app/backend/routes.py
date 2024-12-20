@@ -1,16 +1,25 @@
-from flask import render_template, Flask, request, jsonify, abort
-import sys
-import os
+from flask import Flask, request, jsonify, abort, send_from_directory
+from flask_cors import CORS, cross_origin
 import pandas as pd
+import os
 # Get the parent directory
-current_dir = os.path.dirname(os.path.abspath(__file__))
-parent_dir = os.path.dirname(current_dir)
-# Add the parent directory to sys.path
-sys.path.append(parent_dir)
+# parent_dir = os.path.dirname(current_dir)
+# # Add the parent directory to sys.path
+# sys.path.append(parent_dir)
 from flight.delay_calculator import DelayCalculator
 
-app = Flask(__name__)
+current_dir = os.path.dirname(os.path.abspath(__file__))
+frontend_dir = os.path.join(os.path.dirname(current_dir), "frontend/build")
+app = Flask(__name__, static_folder=frontend_dir, static_url_path='')
 
+# Determine the environment
+ENVIRONMENT = os.getenv('FLASK_ENV', 'development')  # Default to development if not set
+
+if ENVIRONMENT == 'production':
+    # Allow specific origins for production
+    CORS(app, resources={r"/*": {"origins": ["https://flightdelay.us"]}})
+else:
+    CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "http://127.0.0.1:8000"]}})
 
 ASSETS_DIR = os.path.join(current_dir, "assets")
 
@@ -35,11 +44,11 @@ airport_lookup = airport_lookup_df.set_index('Description')['Code'].to_dict()
 
 
 @app.route('/')
-def index():
-    return render_template('index.html')
+def serve():
+    return send_from_directory(app.static_folder, 'index.html')
 
 
-@app.route('/get_options')
+@app.route('/get_options', methods=['GET'])
 def get_options():
     return jsonify({
         'airports': list(airport_lookup.keys()),
@@ -50,18 +59,19 @@ def get_options():
 @app.route('/predict', methods=['POST'])
 def predict():
     # Get input data from the request
-    origin = request.form.get('origin')
-    destination = request.form.get('destination')
-    airline = request.form.get('airline')
-    departure_time = request.form.get('departure-time')
+    request_data = request.get_json()
+    origin = request_data.get('origin')
+    destination = request_data.get('destination')
+    airline = request_data.get('airline')
+    departure_time = request_data.get('departureTime')
 
-    if origin != "" and origin not in airport_lookup:
+    if origin and origin not in airport_lookup:
         abort(400, description=f"Unsupported input: origin airport: {origin}")
-    if destination != "" and destination not in airport_lookup:
+    if destination and destination not in airport_lookup:
         abort(400, description=f"Unsupported input: destination airport: {destination}")
-    if airline != "" and airline not in airline_lookup:
+    if airline and airline not in airline_lookup:
         abort(400, description=f"Unsupported input: airline: {airline}")
-    if departure_time != "" and not departure_time in ['morning', 'afternoon', 'evening', 'night']:
+    if departure_time and not departure_time in ['morning', 'afternoon', 'evening', 'night']:
         abort(400, description=f"Unsupported input: departure_time: {departure_time}")
     
     print(f"Predicting delays for origin: {origin}, destination: {destination}, airline: {airline}, departure_time: {departure_time}")

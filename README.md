@@ -1,5 +1,5 @@
 # Flight Delay Analysis
-www.flightdelay.us
+flightdelay.us
 
 We play around with some flight delay data to analyze how it varies based on origin, destination, airline, and time of day.
 
@@ -25,7 +25,7 @@ python data_cacher.py --data_dir INSERT_DATA_DIR --output_file_path INSERT_OUTPU
 This will read in the raw CSV files from the scraper, prune the data, and store resulting data in another file.
 
 ## Web App
-Run using `python app/run.py`. 
+Run using `./launch.sh`. 
 
 It allows optional user input for fields and computes the delays for `>= 30mins`, `>= 1hr`, `>= 2hrs` and plots `P(delay > T) vs T`.
 The user can select which configurations for conditioning they want to see in the plot.
@@ -35,7 +35,7 @@ The user can select which configurations for conditioning they want to see in th
 ### Fitting Models and Generating Assets
 We fit exponential distributions to model the delays conditioned on factors since we want this to be a lightweight web app. To fit these,
 run:
-`python flight/fit_models.py --input_data_path [INPUT_DATA_PATH] --raw_lookup_tables_dir stored_data/lookup --output_assets_dir app/assets/`
+`python flight/fit_models.py --input_data_path [INPUT_DATA_PATH] --raw_lookup_tables_dir stored_data/lookup --output_assets_dir app/backend/assets/`
 Where `INPUT_DATA_PATH` is the path of the cached data (from `cached_data.zip` or a regenerated dataset).
 
 ## Analysis Notebook
