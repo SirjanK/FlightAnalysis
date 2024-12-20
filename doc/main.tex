@@ -70,9 +70,18 @@ We describe the PDF of the conditional distribution as $f_D(\delta|\{C_i\}, )$ w
 the cases where $\delta > 0$, meaning modeling the distribution of positive delays well.
 
 \subsection{Motivating Example}
-TODO: show plots - full and conditioned on $D > 0$.
+We show an example with the following conditional variables:
+\begin{itemize}
+  \item $C_1 := \text{Origin Airport}$, $C_1 = \text{San Diego}$
+  \item $C_2 := \text{Destination Airport}$, $C_2 = \text{San Francisco}$
+  \item $C_3 := \text{Airline}$, $C_3 = \text{Alaska}$
+  \item $C_4 := \text{Time of Day}$, $C_4 = \text{Afternoon}$
+\end{itemize}
+We plot the densities of the real data in figure (TODO). We zoom in on the cases where $\delta > 0$ since we want to model those well.
+As shown, the fitted model that we'll derive later models this portion of the density well.
 
 \subsection{Proposed Model}
+
 $$f_D(\delta|\{C_i\}) = p\lambda e^{-\lambda \delta}$$
 
 \subsection{Maximum Likelihood Estimate of Parameters}
