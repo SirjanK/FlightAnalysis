@@ -19,6 +19,7 @@ const FlightDelayPredictor = () => {
     }, []);
 
     const handlePrediction = (flightData) => {
+        console.log('Flight data:', flightData);
         fetch('http://localhost:8000/predict', {
             method: 'POST',
             headers: {
@@ -28,7 +29,9 @@ const FlightDelayPredictor = () => {
         })
         .then(response => {
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                return response.json().then(errorData => {
+                    throw new Error(errorData.error);
+                });
             }
             return response.json();
         })
@@ -37,7 +40,12 @@ const FlightDelayPredictor = () => {
         })
         .catch(error => {
             console.error('Error:', error);
+            showErrorDialog(error.message || "We couldn't process your request. Please try again.");
         });
+    };
+    
+    const showErrorDialog = (message) => {
+        alert(message);
     };
 
     return (

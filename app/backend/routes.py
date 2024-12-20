@@ -45,10 +45,11 @@ def get_options():
 @app.route('/predict', methods=['POST'])
 def predict():
     # Get input data from the request
-    origin = request.form.get('origin')
-    destination = request.form.get('destination')
-    airline = request.form.get('airline')
-    departure_time = request.form.get('departure-time')
+    request_data = request.get_json()
+    origin = request_data.get('origin')
+    destination = request_data.get('destination')
+    airline = request_data.get('airline')
+    departure_time = request_data.get('departureTime')
 
     if origin != "" and origin not in airport_lookup:
         abort(400, description=f"Unsupported input: origin airport: {origin}")
