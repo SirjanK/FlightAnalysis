@@ -11,7 +11,16 @@ from flight.delay_calculator import DelayCalculator
 current_dir = os.path.dirname(os.path.abspath(__file__))
 frontend_dir = os.path.join(os.path.dirname(current_dir), "frontend/build")
 app = Flask(__name__, static_folder=frontend_dir, static_url_path='')
-CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
+
+# Determine the environment
+ENVIRONMENT = os.getenv('FLASK_ENV', 'development')  # Default to development if not set
+
+if ENVIRONMENT == 'production':
+    # Allow specific origins for production
+    CORS(app, resources={r"/*": {"origins": ["https://flightdelay.us"]}})
+else:
+    print('dev')
+    CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "http://127.0.0.1:8000"]}})
 
 ASSETS_DIR = os.path.join(current_dir, "assets")
 
