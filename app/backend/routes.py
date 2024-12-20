@@ -51,13 +51,13 @@ def predict():
     airline = request_data.get('airline')
     departure_time = request_data.get('departureTime')
 
-    if origin != "" and origin not in airport_lookup:
+    if origin and origin not in airport_lookup:
         abort(400, description=f"Unsupported input: origin airport: {origin}")
-    if destination != "" and destination not in airport_lookup:
+    if destination and destination not in airport_lookup:
         abort(400, description=f"Unsupported input: destination airport: {destination}")
-    if airline != "" and airline not in airline_lookup:
+    if airline and airline not in airline_lookup:
         abort(400, description=f"Unsupported input: airline: {airline}")
-    if departure_time != "" and not departure_time in ['morning', 'afternoon', 'evening', 'night']:
+    if departure_time and not departure_time in ['morning', 'afternoon', 'evening', 'night']:
         abort(400, description=f"Unsupported input: departure_time: {departure_time}")
     
     print(f"Predicting delays for origin: {origin}, destination: {destination}, airline: {airline}, departure_time: {departure_time}")

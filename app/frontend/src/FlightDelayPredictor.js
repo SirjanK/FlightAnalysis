@@ -54,7 +54,7 @@ const FlightDelayPredictor = () => {
     return (
         <Container>
             <Typography variant="h4" align="center" gutterBottom sx={{ color: 'primary.main' }}>
-                Flight Delay Predictor
+                Flight Delay Predictor USA
             </Typography>
             <InputCards 
                 airports={airports} 
