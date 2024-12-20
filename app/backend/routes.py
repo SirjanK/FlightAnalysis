@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, abort
+from flask import Flask, request, jsonify, abort, send_from_directory
 from flask_cors import CORS, cross_origin
 import pandas as pd
 import os
@@ -8,10 +8,11 @@ import os
 # sys.path.append(parent_dir)
 from flight.delay_calculator import DelayCalculator
 
-app = Flask(__name__)
+current_dir = os.path.dirname(os.path.abspath(__file__))
+frontend_dir = os.path.join(os.path.dirname(current_dir), "frontend/build")
+app = Flask(__name__, static_folder=frontend_dir, static_url_path='')
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 
-current_dir = os.path.dirname(os.path.abspath(__file__))
 ASSETS_DIR = os.path.join(current_dir, "assets")
 
 
@@ -32,6 +33,11 @@ airport_lookup_df = pd.read_csv(f"{ASSETS_DIR}/airport_id_lookup.csv")
 # create dictionary from description to code
 airline_lookup = airline_lookup_df.set_index('Description')['Code'].to_dict()
 airport_lookup = airport_lookup_df.set_index('Description')['Code'].to_dict()
+
+
+@app.route('/')
+def serve():
+    return send_from_directory(app.static_folder, 'index.html')
 
 
 @app.route('/get_options', methods=['GET'])
