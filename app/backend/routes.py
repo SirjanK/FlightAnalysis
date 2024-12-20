@@ -16,8 +16,8 @@ app = Flask(__name__, static_folder=frontend_dir, static_url_path='')
 ENVIRONMENT = os.getenv('FLASK_ENV', 'development')  # Default to development if not set
 
 if ENVIRONMENT == 'production':
-    # Allow specific origins for production
-    CORS(app, resources={r"/*": {"origins": ["https://flightdelay.us"]}})
+    # Allow both HTTP and HTTPS for production
+    CORS(app, resources={r"/*": {"origins": ["https://flightdelay.us", "http://flightdelay.us"]}})
 else:
     CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "http://127.0.0.1:8000"]}})
 
