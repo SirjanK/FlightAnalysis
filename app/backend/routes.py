@@ -16,12 +16,11 @@ app = Flask(__name__, static_folder=frontend_dir, static_url_path='')
 ENVIRONMENT = os.getenv('FLASK_ENV', 'development')  # Default to development if not set
 app.logger.info(f"Running in {ENVIRONMENT} environment")
 
-# if ENVIRONMENT == 'production':
-#     # Allow both HTTP and HTTPS for production
-#     CORS(app, resources={r"/*": {"origins": ["https://flightdelay.us", "http://flightdelay.us"]}})
-# else:
-#     CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "http://127.0.0.1:8000"]}})
-CORS(app, resources={r"/*": {"origins": ["https://flightdelay.us", "http://flightdelay.us"]}})
+if ENVIRONMENT == 'production':
+    # Allow both HTTP and HTTPS for production
+    CORS(app, resources={r"/*": {"origins": ["https://flightdelay.us"]}})
+else:
+    CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "http://127.0.0.1:8000"]}})
 
 ASSETS_DIR = os.path.join(current_dir, "assets")
 
