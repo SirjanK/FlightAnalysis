@@ -38,13 +38,29 @@
 \maketitle
 
 \section{Introduction}
-TODO: write intro.
+We build an app that models the distribution of flight delays conditioned on variables like:
+\begin{itemize}
+  \item Origin Airport
+  \item Destination Airport
+  \item Airline
+  \item Time of Day
+\end{itemize}
 
-\section{Definitions}
-TODO: write definitions
+More specifically, we want users to provide a subset of those "conditional variables" and we'll output information on the probability that the delay
+time will exceed certain thresholds, e.g. 30 minutes, 1 hour, etc along with plotting those probabilities vs delay time. See figure (TODO attach plot)
+as an example.
+
+We are resource constrained based on the container size of the web app we're deploying to, so we describe compression methods for these distributions by modeling them as exponentials - we store
+and load the parameters of that distribution for the app rather than full flight data.
+
+In this doc, we explain a general framework for building algorithms to efficiently model these probabilities at scale. We start with describing
+how we model conditional distributions as an exponential, then describe an algorithm to handle low data support conditionals - e.g. a configuration
+of Origin Airport, Destination Airport, Airline, Time of Day that has very few data points that we can't give a reasonable estimate directly. In 
+these cases, our algorithm is a Bayesian model with some assumptions. By doing so, our app can now handle queries for any subset of the conditional
+variables. We denote cases where we have low data support in the app marked by an asterick, see figure (TODO attach plot).
 
 \section{Modeling Conditional Distributions as an Exponential}
-\subsection{Motivating Examples}
+\subsection{Motivating Example}
 TODO: show plots - full and conditioned on $D > 0$.
 
 \subsection{Proposed Model}
