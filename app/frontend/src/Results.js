@@ -2,11 +2,14 @@ import React from 'react';
 import DataTable from './DataTable';
 import LineChart from './LineChart';
 
-const Results = () => (
-  <div style={{ padding: '20px' }}>
-    <DataTable />
-    <LineChart />
-  </div>
-);
+const Results = ({ delayData }) => {
+  return (
+      <div>
+          <h2>Delay Probability</h2>
+          <DataTable delayData={delayData} />
+          <LineChart delayData={delayData} />
+      </div>
+  );
+};
 
 export default Results;

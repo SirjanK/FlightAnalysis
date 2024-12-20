@@ -1,6 +1,6 @@
-from flask import render_template, Flask, request, jsonify, abort
+from flask import Flask, request, jsonify, abort
+from flask_cors import CORS, cross_origin
 import pandas as pd
-import sys
 import os
 # Get the parent directory
 # parent_dir = os.path.dirname(current_dir)
@@ -9,6 +9,7 @@ import os
 from flight.delay_calculator import DelayCalculator
 
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 ASSETS_DIR = os.path.join(current_dir, "assets")
@@ -33,12 +34,7 @@ airline_lookup = airline_lookup_df.set_index('Description')['Code'].to_dict()
 airport_lookup = airport_lookup_df.set_index('Description')['Code'].to_dict()
 
 
-@app.route('/')
-def index():
-    return render_template('index.html')
-
-
-@app.route('/get_options')
+@app.route('/get_options', methods=['GET'])
 def get_options():
     return jsonify({
         'airports': list(airport_lookup.keys()),

@@ -1,39 +1,31 @@
-// src/DataTable.js
 import React from 'react';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 
-// Mock data for the Material UI table
-const mockData = [
-  { id: 1, name: 'John Doe', age: 28, city: 'New York' },
-  { id: 2, name: 'Jane Smith', age: 34, city: 'Los Angeles' },
-  { id: 3, name: 'Alice Johnson', age: 45, city: 'Chicago' },
-];
+const DataTable = ({ delayData }) => {
+  const thirtyMinProb = delayData.find(d => d[0] >= 30)?.[1] || 0;
+  const oneHourProb = delayData.find(d => d[0] >= 60)?.[1] || 0;
+  const twoHourProb = delayData.find(d => d[0] >= 120)?.[1] || 0;
 
-// Table component
-const DataTable = () => (
-  <TableContainer component={Paper}>
-    <Table>
-      <TableHead>
-        <TableRow>
-          <TableCell>ID</TableCell>
-          <TableCell>Name</TableCell>
-          <TableCell>Age</TableCell>
-          <TableCell>City</TableCell>
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        {mockData.map(row => (
-          <TableRow key={row.id}>
-            <TableCell>{row.id}</TableCell>
-            <TableCell>{row.name}</TableCell>
-            <TableCell>{row.age}</TableCell>
-            <TableCell>{row.city}</TableCell>
+  return (
+    <TableContainer component={Paper}>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell>= 30 mins</TableCell>
+            <TableCell>= 1hr</TableCell>
+            <TableCell>= 2hrs</TableCell>
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  </TableContainer>
-);
+        </TableHead>
+        <TableBody>
+          <TableRow>
+            <TableCell>{(thirtyMinProb * 100).toFixed(2)}%</TableCell>
+            <TableCell>{(oneHourProb * 100).toFixed(2)}%</TableCell>
+            <TableCell>{(twoHourProb * 100).toFixed(2)}%</TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
+};
 
 export default DataTable;
-

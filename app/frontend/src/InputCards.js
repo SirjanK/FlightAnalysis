@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import DelayPredictorCardForm from './DelayPredictorCardForm';
 import { Grid2, Button, Box } from '@mui/material';
 
-const InputCards = ({ airports, airlinesList }) => {
+const InputCards = ({ airports, airlinesList, onPrediction }) => {
     const [cards, setCards] = useState([0]); // Start with one card
     const [cardData, setCardData] = useState([{ origin: '', destination: '', airline: '', departureTime: '' }]); // Store card data
 
@@ -35,6 +35,9 @@ const InputCards = ({ airports, airlinesList }) => {
                                 const updatedData = [...cardData];
                                 updatedData[originalIndex] = data; // Update specific card data
                                 setCardData(updatedData); // Set updated card data
+                                if (originalIndex === 0) { // Only predict for Flight 1 (for now)
+                                    onPrediction(data);
+                                }
                             }} 
                         />
                     </Grid2>

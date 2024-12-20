@@ -21,14 +21,11 @@ const DelayPredictorCardForm = ({ index, airports, airlinesList, onDelete, onUpd
 
     // Handle form submission (submit button)
     const handleSubmit = (e) => {
-        e.preventDefault(); // Prevent default form submission behavior
+        e.preventDefault();
         const flightData = { origin, destination, airline, departureTime };
-        
-        // Log flight number and fields
         console.log(`Submitting Flight ${index + 1}:`, JSON.stringify(flightData, null, 2));
-        
-        onUpdate(flightData); // Update parent state with current flight data
-        setIsLocked(true); // Lock the card after submission
+        onUpdate(flightData);
+        setIsLocked(true);
     };
 
     return (

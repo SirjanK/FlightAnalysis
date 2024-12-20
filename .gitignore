@@ -3,5 +3,6 @@
 .ipynb_checkpoints/
 notebook_data/
 /*/__pycache__/
+app/backend/__pycache__/
 venv/
 data/
