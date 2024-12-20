@@ -9,7 +9,7 @@ const FlightDelayPredictor = () => {
     const [predictionResults, setPredictionResults] = useState([]);
 
     useEffect(() => {
-        fetch('http://localhost:8000/get_options')  // TODO generalize for prod
+        fetch(`${process.env.REACT_APP_API_URL}/get_options`)
             .then(response => response.json())
             .then(data => {
                 setAirports(data.airports);
@@ -20,7 +20,7 @@ const FlightDelayPredictor = () => {
 
     const handlePrediction = (flightDataArray) => {
         const predictions = flightDataArray.map(flightData => 
-            fetch('http://localhost:8000/predict', {
+            fetch(`${process.env.REACT_APP_API_URL}/predict`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
