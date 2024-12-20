@@ -6,7 +6,7 @@ import Results from './Results';
 const FlightDelayPredictor = () => {
     const [airports, setAirports] = useState([]);
     const [airlinesList, setAirlinesList] = useState([]);
-    const [predictionResults, setPredictionResults] = useState(null);
+    const [predictionResults, setPredictionResults] = useState([]);
 
     useEffect(() => {
         fetch('http://localhost:8000/get_options')  // TODO generalize for prod
@@ -18,30 +18,33 @@ const FlightDelayPredictor = () => {
             .catch(error => console.error('Error fetching options:', error));
     }, []);
 
-    const handlePrediction = (flightData) => {
-        console.log('Flight data:', flightData);
-        fetch('http://localhost:8000/predict', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(flightData)
-        })
-        .then(response => {
-            if (!response.ok) {
-                return response.json().then(errorData => {
-                    throw new Error(errorData.error);
-                });
-            }
-            return response.json();
-        })
-        .then(data => {
-            setPredictionResults(data.delay_data);
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showErrorDialog(error.message || "We couldn't process your request. Please try again.");
-        });
+    const handlePrediction = (flightDataArray) => {
+        const predictions = flightDataArray.map(flightData => 
+            fetch('http://localhost:8000/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(flightData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(errorData => {
+                        throw new Error(errorData.error);
+                    })
+                }
+                return response.json();
+            })
+        );
+    
+        Promise.all(predictions)
+            .then(results => {
+                setPredictionResults(results.map(result => result.delay_data));
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showErrorDialog(error.message || "We couldn't process your request. Please try again.");
+            });
     };
     
     const showErrorDialog = (message) => {
@@ -58,7 +61,7 @@ const FlightDelayPredictor = () => {
                 airlinesList={airlinesList} 
                 onPrediction={handlePrediction}
             />
-            {predictionResults && <Results delayData={predictionResults} />}
+            {predictionResults && predictionResults.length > 0 && <Results delayData={predictionResults} />}
         </Container>
     );
 };

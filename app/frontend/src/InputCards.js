@@ -35,9 +35,7 @@ const InputCards = ({ airports, airlinesList, onPrediction }) => {
                                 const updatedData = [...cardData];
                                 updatedData[originalIndex] = data; // Update specific card data
                                 setCardData(updatedData); // Set updated card data
-                                if (originalIndex === 0) { // Only predict for Flight 1 (for now)
-                                    onPrediction(data);
-                                }
+                                onPrediction(updatedData);
                             }} 
                         />
                     </Grid2>

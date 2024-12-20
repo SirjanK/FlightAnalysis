@@ -1,14 +1,17 @@
 import React from 'react';
 import DataTable from './DataTable';
-import LineChart from './LineChart';
+import CustomLineChart from './CustomLineChart';
+import { Typography } from '@mui/material';
 
 const Results = ({ delayData }) => {
   return (
-      <div>
-          <h2>Delay Probability</h2>
-          <DataTable delayData={delayData} />
-          <LineChart delayData={delayData} />
-      </div>
+    <div>
+      <Typography variant="h4" gutterBottom sx={{ color: 'primary.main', marginTop: 4 }}>
+        Delay Probability
+      </Typography>
+      <DataTable delayData={delayData} />
+      <CustomLineChart delayData={delayData} />
+    </div>
   );
 };
 

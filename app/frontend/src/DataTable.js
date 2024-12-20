@@ -1,27 +1,39 @@
+// DataTable.js
 import React from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, styled } from '@mui/material';
+
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+  backgroundColor: theme.palette.primary.main,
+  color: theme.palette.common.white,
+  fontWeight: 'bold',
+}));
 
 const DataTable = ({ delayData }) => {
-  const thirtyMinProb = delayData.find(d => d[0] >= 30)?.[1] || 0;
-  const oneHourProb = delayData.find(d => d[0] >= 60)?.[1] || 0;
-  const twoHourProb = delayData.find(d => d[0] >= 120)?.[1] || 0;
-
   return (
-    <TableContainer component={Paper}>
+    <TableContainer component={Paper} elevation={3} sx={{ marginBottom: 2 }}>
       <Table>
         <TableHead>
           <TableRow>
-            <TableCell>= 30 mins</TableCell>
-            <TableCell>= 1hr</TableCell>
-            <TableCell>= 2hrs</TableCell>
+            <StyledTableCell>Flight</StyledTableCell>
+            <StyledTableCell>≥ 30 mins</StyledTableCell>
+            <StyledTableCell>≥ 1hr</StyledTableCell>
+            <StyledTableCell>≥ 2hrs</StyledTableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          <TableRow>
-            <TableCell>{(thirtyMinProb * 100).toFixed(2)}%</TableCell>
-            <TableCell>{(oneHourProb * 100).toFixed(2)}%</TableCell>
-            <TableCell>{(twoHourProb * 100).toFixed(2)}%</TableCell>
-          </TableRow>
+          {delayData.map((flight, index) => {
+            const thirtyMinProb = flight.find(d => d[0] >= 30)?.[1] || 0;
+            const oneHourProb = flight.find(d => d[0] >= 60)?.[1] || 0;
+            const twoHourProb = flight.find(d => d[0] >= 120)?.[1] || 0;
+            return (
+              <TableRow key={index}>
+                <TableCell>Flight {index + 1}</TableCell>
+                <TableCell>{(thirtyMinProb * 100).toFixed(2)}%</TableCell>
+                <TableCell>{(oneHourProb * 100).toFixed(2)}%</TableCell>
+                <TableCell>{(twoHourProb * 100).toFixed(2)}%</TableCell>
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
     </TableContainer>
