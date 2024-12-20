@@ -60,6 +60,15 @@ these cases, our algorithm is a Bayesian model with some assumptions. By doing s
 variables. We denote cases where we have low data support in the app marked by an asterick, see figure (TODO attach plot).
 
 \section{Modeling Conditional Distributions as an Exponential}
+\subsection{Definitions}
+Let $D$ be the continuous random variable representing the delay time of a flight. Let $C_i$ be the $i$th conditional variable, e.g. origin airport.
+In our cases $C_i$ are categorical, although they don't have to be. Even for time of day, we've divided it into 4 categories with six hour intervals: morning, afternoon, evening, night.
+For the purposes of the theory, we'll derive all our results for generic $C_i$, which means these techniques are extendable to other conditioning variables
+in the future.
+
+We describe the PDF of the conditional distribution as $f_D(\delta|\{C_i\}, )$ where $\delta$ is the delay time. What we actually care about, however, are
+the cases where $\delta > 0$, meaning modeling the distribution of positive delays well.
+
 \subsection{Motivating Example}
 TODO: show plots - full and conditioned on $D > 0$.
 
