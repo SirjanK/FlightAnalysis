@@ -65,6 +65,7 @@ const DelayPredictorCardForm = ({ index, airports, airlinesList, onDelete, onUpd
                             renderInput={(params) => (
                                 <TextField {...params} label="Origin" margin="normal" fullWidth size="small" />
                             )}
+                            disabled={isLocked}
                         />
                         <Autocomplete
                             options={airports}
@@ -73,6 +74,7 @@ const DelayPredictorCardForm = ({ index, airports, airlinesList, onDelete, onUpd
                             renderInput={(params) => (
                                 <TextField {...params} label="Destination" margin="normal" fullWidth size="small" />
                             )}
+                            disabled={isLocked}
                         />
                         <Autocomplete
                             options={airlinesList}
@@ -81,6 +83,7 @@ const DelayPredictorCardForm = ({ index, airports, airlinesList, onDelete, onUpd
                             renderInput={(params) => (
                                 <TextField {...params} label="Airline" margin="normal" fullWidth size="small" />
                             )}
+                            disabled={isLocked}
                         />
                         <TextField 
                             fullWidth 
@@ -90,6 +93,7 @@ const DelayPredictorCardForm = ({ index, airports, airlinesList, onDelete, onUpd
                             select 
                             margin="normal"
                             size="small"
+                            disabled={isLocked}
                         >
                             <MenuItem value="">
                                 <em>Select</em>

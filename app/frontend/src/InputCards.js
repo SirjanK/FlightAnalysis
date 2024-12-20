@@ -19,6 +19,7 @@ const InputCards = ({ airports, airlinesList, onPrediction }) => {
         const updatedCardData = cardData.filter((_, index) => index !== indexToDelete);
         setCards(updatedCards); // Update state with remaining cards
         setCardData(updatedCardData); // Update card data
+        onPrediction(updatedCardData)  // re-render charts
     };
 
     return (

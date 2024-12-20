@@ -6,7 +6,7 @@ import { Typography } from '@mui/material';
 const Results = ({ delayData }) => {
   return (
     <div>
-      <Typography variant="h4" gutterBottom sx={{ color: 'primary.main', marginTop: 4 }}>
+      <Typography variant="h5" gutterBottom sx={{ color: 'primary.main', marginTop: 4 }}>
         Delay Probability
       </Typography>
       <DataTable delayData={delayData} />

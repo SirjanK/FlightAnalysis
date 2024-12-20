@@ -1,41 +1,69 @@
-import React from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+// src/CustomLineChart.js
 
-const colors = ['#8884d8', '#82ca9d', '#ffc658']; // Add more colors if needed
+import React from "react";
+import { Chart } from "react-google-charts";
 
 const CustomLineChart = ({ delayData }) => {
-  if (delayData.length === 0) {
-    // exit
-    return null;
-  }
-  const formattedData = delayData[0].map((point, index) => ({
-    delay: point[0],
-    ...delayData.reduce((acc, flight, flightIndex) => {
-      acc[`Flight ${flightIndex + 1}`] = flight[index][1];
-      return acc;
-    }, {})
-  }));
+    // Prepare formatted data for the chart
+    const formattedData = [];
+    
+    // Create headers
+    const headers = ["Delay"];
+    delayData.forEach((_, flightIndex) => {
+        headers.push(`Flight ${flightIndex + 1}`);
+    });
+    formattedData.push(headers);
 
-  return (
-    <ResponsiveContainer width="100%" height={400}>
-      <LineChart data={formattedData}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="delay" />
-        <YAxis />
-        <Tooltip />
-        <Legend />
-        {delayData.map((_, index) => (
-          <Line 
-            key={index}
-            type="monotone" 
-            dataKey={`Flight ${index + 1}`} 
-            stroke={colors[index % colors.length]} 
-            activeDot={{ r: 8 }} 
-          />
-        ))}
-      </LineChart>
-    </ResponsiveContainer>
-  );
+    // Populate data points
+    delayData[0].forEach((point, index) => {
+        const row = [point[0]]; // Delay time
+        delayData.forEach(flight => {
+            row.push(flight[index][1]); // Flight data
+        });
+        formattedData.push(row);
+    });
+
+    const options = {
+        hAxis: { title: "Delay Time T (minutes)" },
+        vAxis: { title: "Probability Delay > T" },
+        series: {
+          0: { color: "#FFA500" },
+          1: { color: "#800080" },
+          2: { color: "#006400" }
+        },
+        legend: { position: "top" },
+        tooltip: {
+          isHtml: true,
+          trigger: 'hover',
+          formatter: (row) => {
+            const delayTime = Math.round(formattedData[row][0]); // Rounded minute
+            const percentages = formattedData[row].slice(1).map((value, index) => 
+                `Flight ${index + 1}: ${value}%`
+            ).join("<br/>"); // Join with line breaks for HTML formatting
+
+            return `<div style="padding: 10px;">
+                        <strong>${delayTime} minutes</strong><br/>
+                        ${percentages}
+                    </div>`;
+          },
+        }
+    };
+
+    return (
+        <div style={{ width: "100%", height: "400px" }}>
+            <Chart
+                chartType="LineChart"
+                width="100%"
+                height="100%"
+                data={formattedData}
+                options={options}
+                // Custom tooltip formatting
+                getTooltip={(row) => {
+                  
+                }}
+            />
+        </div>
+    );
 };
 
 export default CustomLineChart;
