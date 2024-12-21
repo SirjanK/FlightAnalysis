@@ -47,17 +47,11 @@ We build an app that models the distribution of flight delays conditioned on var
 \end{itemize}
 
 More specifically, we want users to provide a subset of those "conditional variables" and we'll output information on the probability that the delay
-time will exceed certain thresholds, e.g. 30 minutes, 1 hour, etc along with plotting those probabilities vs delay time. See figure (TODO attach plot)
-as an example.
+time will exceed certain thresholds, e.g. 30 minutes, 1 hour, etc along with plotting those probabilities vs delay time.
 
 We are resource constrained based on the container size of the web app we're deploying to, so we describe compression methods for these distributions by modeling them as exponentials - we store
-and load the parameters of that distribution for the app rather than full flight data.
-
-In this doc, we explain a general framework for building algorithms to efficiently model these probabilities at scale. We start with describing
-how we model conditional distributions as an exponential, then describe an algorithm to handle low data support conditionals - e.g. a configuration
-of Origin Airport, Destination Airport, Airline, Time of Day that has very few data points that we can't give a reasonable estimate directly. In 
-these cases, our algorithm is a Bayesian model with some assumptions. By doing so, our app can now handle queries for any subset of the conditional
-variables. We denote cases where we have low data support in the app marked by an asterick, see figure (TODO attach plot).
+and load the parameters of that distribution for the app rather than full flight data. There are nearly 46M flights in the dataset from 2018 to 2024, so
+this is a significant reduction in size. In this doc, we explain a general framework for building algorithms to efficiently model these probabilities at scale.
 
 \section{Modeling Conditional Distributions as an Exponential}
 \subsection{Definitions}
@@ -66,62 +60,59 @@ In our cases $C_i$ are categorical, although they don't have to be. Even for tim
 For the purposes of the theory, we'll derive all our results for generic $C_i$, which means these techniques are extendable to other conditioning variables
 in the future.
 
-We describe the PDF of the conditional distribution as $f_D(\delta|\{C_i\}, )$ where $\delta$ is the delay time. What we actually care about, however, are
-the cases where $\delta > 0$, meaning modeling the distribution of positive delays well.
-
-\subsection{Motivating Example}
-We show an example with the following conditional variables:
-\begin{itemize}
-  \item $C_1 := \text{Origin Airport}$, $C_1 = \text{San Diego}$
-  \item $C_2 := \text{Destination Airport}$, $C_2 = \text{San Francisco}$
-  \item $C_3 := \text{Airline}$, $C_3 = \text{Alaska}$
-  \item $C_4 := \text{Time of Day}$, $C_4 = \text{Afternoon}$
-\end{itemize}
-We plot the densities of the real data in figure (TODO). We zoom in on the cases where $\delta > 0$ since we want to model those well.
-As shown, the fitted model that we'll derive later models this portion of the density well.
+We denote the PDF of the conditional distribution as $f_D(\delta|\{C_i\})$ where $\delta$ is the delay time. What we actually care about, however, are
+the cases where $\delta > 0$, so we actually want to model $D' = \max \{D, 0\}$ well.
 
 \subsection{Proposed Model}
-We want to model:
-$$f_D(\delta | \{C_i\}, D > 0)$$
-as an exponential distribution with parameter $\lambda$. The full joint distribution can be written as:
-\begin{align*}
-  f_D(\delta | \{C_i\}) &= 
-\end{align*}
-$$f_D(\delta|\{C_i\}) = p\lambda e^{-\lambda \delta}$$
+Recall $D' = \max \{D, 0\}$. Observe that for any $\delta > 0$,
+$$f_{D'}(\delta | \{C_i\}) = f_{D'}(\delta, D > 0 | \{C_i\}) = f_{D'}(\delta | \{C_i\}, D > 0)\Pr(\delta > 0)$$
+As motivated by above, we model conditional distribution on $D > 0$ as an exponential distribution with parameter $\lambda$.
+
+We model $\Pr(\delta > 0)$ as a Bernoulli distribution with parameter $p$.
+
+Therefore, our final model for $f_{D'}(\delta | \{C_i\})$ is:
+$$f_{p, \lambda}(\delta) = \begin{cases}
+  0 & \delta < 0 \\
+  1 - p & \delta = 0 \\
+  p\lambda e^{-\lambda \delta} & \delta > 0
+\end{cases}$$
+It's easy to see that this is a valid PDF since $\int_0^\infty p\lambda e^{-\lambda \delta} = p$.
 
 \subsection{Maximum Likelihood Estimate of Parameters}
-Learn $p$, $\lambda$.
+\subsubsection{Derivation}
+We want to fit $p$, $\lambda$ to best fit our data.
+
+Take a set of conditional variables $\{C_i=c_i\}$. From our data, assume we have $n$ samples such that the conditionals $\{C_i=c_i\}$ are
+satisfied. Denote these delays as $\delta_1, \delta_2, \ldots, \delta_n$.
+
+Let $m = |\{i: \delta_i > 0\}|$ be the number of positive delays.
+
+We make the assumption that the delays are iid. We first derive the log likelihood function of the data after transforming $\delta_i' = \max\{\delta_i, 0\}$.:
+
 \begin{align*}
-    p &= \sum_{i=1}^n 1_{\delta_i > 0} / N \\
-    \lambda &= N / \sum_{i=1}^n \delta_i 1_{\delta_i > 0}
+  h(p, \lambda) = \log\mathcal{L}(p, \lambda ; \{\delta_1', \delta_2', \ldots, \delta_n'\}) &= \log \prod_{i=1}^n f_{p, \lambda}(\delta_i') \\
+  &= \sum_{\{i: \delta_i \leq 0\}} \log (1 - p) + \sum_{\{i: \delta_i > 0\}} \log p + \log \lambda - \lambda \delta_i \\
+  &= (n - m)\log(1 - p) + m\log p + m\log \lambda - \lambda \sum_{\{i : \delta_i > 0\}} \delta_i
+\end{align*}
+We want to find:
+$$\arg \max_{p, \lambda} \mathcal{L}(p, \lambda ; \{\delta_1', \delta_2', \ldots, \delta_n'\})$$
+We compute partial derivatives:
+\begin{align*}
+  \frac{\partial h}{\partial p} &= -\frac{n - m}{1 - p} + \frac{m}{p} = 0 \\
+  \frac{\partial h}{\partial \lambda} &= \frac{m}{\lambda} - \sum_{\{i : \delta_i > 0\}} \delta_i = 0
+\end{align*}
+Yielding us our estimates:
+\begin{align*}
+  \hat{p} &= \frac{|\{i: \delta_i > 0\}|}{n} \\
+  \hat{\lambda} &= \frac{|\{i: \delta_i > 0\}|}{\sum_{\{i : \delta_i > 0\}} \delta_i}
 \end{align*}
 
-\subsection{MLE Plot and Goodness of Fit}
-\subsubsection{Metric}
-\subsubsection{Example Fits}
-\subsubsection{Score vs Data Size}
-\subsubsection{Score vs Conditional Group Profile}
-\subsubsection{Bias Variance Tradeoff in Action}
-
 \subsection{Delay Survival Function}
-$$P(D>\delta | \{C_i\}) = p e^{-\lambda \delta}$$
-
-\section{Algorithms for Low Data Support Conditionals}
-\subsection{Core Problem and Motivating Example}
-\subsection{Definitions of Subset Groupings and Partition}
-\subsection{Assumption and Setup}
-\subsection{Parameter Estimate Derivation Given Partition}
-\subsection{Which Partition is Best?}
-\subsubsection{Main Idea}
-\subsubsection{KL Divergence Derivation}
-\subsubsection{Ranking of Partitions Algorithm}
-
-\section{Final Algorithm}
-\subsection{Model Fitting}
-Defer explanation of the partitions algorithm to earlier.
-\subsection{Inference}
-
-\section{Fun Examples}
-Attach images from the site
+Our ultimate goal is to display the survival function or $P(D > \delta | \{C_i\})$ for $\delta > 0$ to user queries. Based on our model we can derive this (for $\delta > 0$):
+\begin{align*}
+  \Pr(D > \delta) &= \int_\delta^\infty p\lambda e^{-\lambda x}dx \\
+  &= -pe^{-\lambda x}\bigg|_\delta^\infty \\
+  &= pe^{-\lambda \delta}
+\end{align*}
 
 \end{document}
