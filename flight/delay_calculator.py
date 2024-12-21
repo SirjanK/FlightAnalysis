@@ -18,6 +18,20 @@ class DelayCalculator:
         for col in ['OP_CARRIER_AIRLINE_ID', 'ORIGIN_AIRPORT_ID', 'DEST_AIRPORT_ID']:
             params_df[col] = params_df[col].astype('Int64')
         self._params_df = params_df.set_index(CONDITIONAL_COLS)
+    
+    def validate(self, orig_airport_id: Optional[int], dest_airport_id: Optional[int], airline_id: Optional[int], time_bucket: Optional[str]) -> bool:
+        """
+        Validate we can support the query
+
+        :param orig_airport_id: Origin airport ID.
+        :param dest_airport_id: Destination airport ID.
+        :param airline_id: Airline ID.
+        :param hour_of_day: Hour of the day.
+        :return: None if the query is supported, otherwise return an error message.
+        """
+
+        index = (airline_id, orig_airport_id, dest_airport_id, time_bucket)
+        return index in self._params_df.index
 
     def predict_delays(self, orig_airport_id: Optional[int], dest_airport_id: Optional[int], airline_id: Optional[int], time_bucket: Optional[str]) -> Optional[np.ndarray]:
         """
