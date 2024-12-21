@@ -81,13 +81,18 @@ def validate_request() -> Optional[str]:
     if departure_time and not departure_time in ['morning', 'afternoon', 'evening', 'night']:
         return f"Unsupported input: departure_time: {departure_time}"
     
-    if not delay_calculator.validate(origin, destination, airline, departure_time):
+    if not delay_calculator.validate(
+        orig_airport_id=airport_lookup.get(origin),
+        dest_airport_id=airport_lookup.get(destination),
+        airline_id=airline_lookup.get(airline),
+        time_bucket=departure_time if departure_time != "" else None,
+    ):
         return "We cannot support this query given low data support"
     
     return None
 
 
-@app.route('/validate', methods=['GET'])
+@app.route('/validate', methods=['POST'])
 def validate():
     validation_result = validate_request()
 
@@ -139,3 +144,7 @@ def predict():
 @app.errorhandler(400)
 def bad_request(error):
     return jsonify(error=str(error.description)), 400
+
+@app.errorhandler(422)
+def unprocessable_entity(error):
+    return jsonify(error=str(error.description)), 422
