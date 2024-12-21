@@ -24,7 +24,15 @@ const DelayPredictorCardForm = ({ index, airports, airlinesList, onDelete, onUpd
         e.preventDefault();
         const flightData = { origin, destination, airline, departureTime };
         onUpdate(flightData);
-        setIsLocked(true);
+        fetch(`${process.env.REACT_APP_API_URL}/validate`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    setIsLocked(true);
+                } else {
+                    console.log('Validation failed:', data.error);
+                }
+            });
     };
 
     return (

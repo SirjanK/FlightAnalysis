@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, abort, send_from_directory
 from flask_cors import CORS, cross_origin
 import pandas as pd
 import os
+from typing import Optional
 # Get the parent directory
 # parent_dir = os.path.dirname(current_dir)
 # # Add the parent directory to sys.path
@@ -57,6 +58,51 @@ def get_options():
     })
 
 
+def validate_request() -> Optional[str]:
+    """
+    Validate the request data
+
+    :return: Error message if validation fails, None otherwise (indicating success)
+    """
+
+    # Get input data from the request
+    request_data = request.get_json()
+    origin = request_data.get('origin')
+    destination = request_data.get('destination')
+    airline = request_data.get('airline')
+    departure_time = request_data.get('departureTime')
+
+    if origin and origin not in airport_lookup:
+        return f"Unsupported input: origin airport: {origin}"
+    if destination and destination not in airport_lookup:
+        return f"Unsupported input: destination airport: {destination}"
+    if airline and airline not in airline_lookup:
+        return f"Unsupported input: airline: {airline}"
+    if departure_time and not departure_time in ['morning', 'afternoon', 'evening', 'night']:
+        return f"Unsupported input: departure_time: {departure_time}"
+    
+    if not delay_calculator.validate(origin, destination, airline, departure_time):
+        return "We cannot support this query given low data support"
+    
+    return None
+
+
+@app.route('/validate', methods=['GET'])
+def validate():
+    validation_result = validate_request()
+
+    if validation_result is None:
+        return jsonify({
+            'success': True,
+            'message': ''
+        })
+    else:
+        return jsonify({
+            'success': False,
+            'message': validation_result
+        })
+
+
 @app.route('/predict', methods=['POST'])
 def predict():
     # Get input data from the request
@@ -66,14 +112,9 @@ def predict():
     airline = request_data.get('airline')
     departure_time = request_data.get('departureTime')
 
-    if origin and origin not in airport_lookup:
-        abort(400, description=f"Unsupported input: origin airport: {origin}")
-    if destination and destination not in airport_lookup:
-        abort(400, description=f"Unsupported input: destination airport: {destination}")
-    if airline and airline not in airline_lookup:
-        abort(400, description=f"Unsupported input: airline: {airline}")
-    if departure_time and not departure_time in ['morning', 'afternoon', 'evening', 'night']:
-        abort(400, description=f"Unsupported input: departure_time: {departure_time}")
+    validation_result = validate_request()
+    if validation_result is not None:
+        abort(400, description=validation_result)
     
     app.logger.debug(f"Predicting delays for origin: {origin}, destination: {destination}, airline: {airline}, departure_time: {departure_time}")
     # Predict the delays
@@ -98,8 +139,3 @@ def predict():
 @app.errorhandler(400)
 def bad_request(error):
     return jsonify(error=str(error.description)), 400
-
-
-@app.errorhandler(422)
-def unprocessable_entity(error):
-    return jsonify(error=str(error.description)), 422
