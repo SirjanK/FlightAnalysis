@@ -1,5 +1,5 @@
 # Flight Delay Analysis
-[flightdelay.us][https://flightdelay.us]
+[flightdelay.us](https://flightdelay.us)
 
 We play around with some flight delay data to analyze how it varies based on origin, destination, airline, and time of day.
 
