@@ -29,6 +29,7 @@
 
 \author{%
   Sirjan Kafle \\
+  \texttt{Unsullied by Sponsorship since 1997} \\
   \texttt{sxkafle12@gmail.com} \\
   \texttt{https://flightdelay.us}
 }
@@ -64,9 +65,9 @@ We denote the PDF of the conditional distribution as $f_D(\delta|\{C_i\})$ where
 the cases where $\delta > 0$, so we actually want to model $D' = \max \{D, 0\}$ well.
 
 \subsection{Proposed Model}
-Recall $D' = \max \{D, 0\}$. Observe that for any $\delta > 0$,
-$$f_{D'}(\delta | \{C_i\}) = f_{D'}(\delta, D > 0 | \{C_i\}) = f_{D'}(\delta | \{C_i\}, D > 0)\Pr(\delta > 0)$$
-As motivated by above, we model conditional distribution on $D > 0$ as an exponential distribution with parameter $\lambda$.
+Observe that for any $\delta > 0$,
+$$f_{D'}(\delta | \{C_i\}) = f_{D'}(\delta, D > 0 | \{C_i\}) = f_{D'}(\delta | \{C_i\}, D > 0)\Pr(D > 0)$$
+We model conditional distribution on $D > 0$ as an exponential distribution with parameter $\lambda$.
 
 We model $\Pr(\delta > 0)$ as a Bernoulli distribution with parameter $p$.
 
